@@ -50,7 +50,7 @@ class CloudStorageSSOT {
     this.save(state);
   }
 
-  applyGithubReview(prId: string, reviewer: string, state: ReviewState): void {
+  applyGitHubReview(prId: string, reviewer: string, state: ReviewState): void {
     const ssot = this.load();
     const pr = ssot.prs.find((item) => item.id === prId);
     if (!pr) return;
@@ -136,7 +136,7 @@ prList.addEventListener("click", (event) => {
   const reviewerSelect = prList.querySelector<HTMLSelectElement>(`select[data-kind='reviewer'][data-id='${prId}']`);
   if (!reviewerSelect) return;
 
-  cloud.applyGithubReview(prId, reviewerSelect.value, kind === "approve" ? "APPROVED" : "CHANGES_REQUESTED");
+  cloud.applyGitHubReview(prId, reviewerSelect.value, kind === "approve" ? "APPROVED" : "CHANGES_REQUESTED");
   render();
 });
 
