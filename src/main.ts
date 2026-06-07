@@ -73,8 +73,8 @@ const snapshot = document.querySelector<HTMLPreElement>("#snapshot")!;
 
 function approvalState(pr: PullRequest): "APPROVED" | "CHANGES_REQUESTED" | "PENDING" {
   if (pr.reviews.some((r) => r.state === "CHANGES_REQUESTED")) return "CHANGES_REQUESTED";
-  if (pr.reviews.some((r) => r.state === "APPROVED")) return "APPROVED";
-  return "PENDING";
+  const approvedBy = new Set(pr.reviews.filter((r) => r.state === "APPROVED").map((r) => r.reviewer));
+  return reviewers.every((reviewer) => approvedBy.has(reviewer)) ? "APPROVED" : "PENDING";
 }
 
 function render(): void {
