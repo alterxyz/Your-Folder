@@ -15,7 +15,7 @@ npm install
 npm run build
 ```
 
-然后直接在浏览器打开 `/tmp/workspace/alterxyz/Your-Folder/index.html`（会加载 `dist/main.js`）。
+然后直接在浏览器打开项目根目录下的 `index.html`（会加载 `dist/main.js`）。
 
 ## Demo Flow
 

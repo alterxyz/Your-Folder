@@ -71,8 +71,10 @@ const createButton = document.querySelector<HTMLButtonElement>("#create")!;
 const prList = document.querySelector<HTMLDivElement>("#pr-list")!;
 const snapshot = document.querySelector<HTMLPreElement>("#snapshot")!;
 
-function approvalState(pr: PullRequest): "APPROVED" | "PENDING" {
-  return pr.reviews.some((r) => r.state === "APPROVED") ? "APPROVED" : "PENDING";
+function approvalState(pr: PullRequest): "APPROVED" | "CHANGES_REQUESTED" | "PENDING" {
+  if (pr.reviews.some((r) => r.state === "CHANGES_REQUESTED")) return "CHANGES_REQUESTED";
+  if (pr.reviews.some((r) => r.state === "APPROVED")) return "APPROVED";
+  return "PENDING";
 }
 
 function render(): void {
