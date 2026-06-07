@@ -79,36 +79,76 @@ function approvalState(pr: PullRequest): "APPROVED" | "CHANGES_REQUESTED" | "PEN
 
 function render(): void {
   const state = cloud.load();
+  prList.replaceChildren();
 
   if (state.prs.length === 0) {
-    prList.innerHTML = "<p>暂无 PR。</p>";
+    const empty = document.createElement("p");
+    empty.textContent = "暂无 PR。";
+    prList.append(empty);
   } else {
-    prList.innerHTML = state.prs
-      .map((pr) => {
-        const status = approvalState(pr);
-        const reviewList = pr.reviews.length
-          ? `<ul>${pr.reviews
-              .map((r) => `<li><code>${r.reviewer}</code>: ${r.state} @ ${new Date(r.at).toLocaleString()}</li>`)
-              .join("")}</ul>`
-          : "<p>暂无审批</p>";
+    for (const pr of state.prs) {
+      const status = approvalState(pr);
+      const article = document.createElement("article");
+      article.className = "card";
 
-        return `
-          <article class="card">
-            <h3>${pr.title}</h3>
-            <p>${pr.description}</p>
-            <p><strong>审批状态:</strong> ${status}</p>
-            <div class="row">
-              <select data-kind="reviewer" data-id="${pr.id}">
-                ${reviewers.map((r) => `<option value="${r}">${r}</option>`).join("")}
-              </select>
-              <button data-kind="approve" data-id="${pr.id}">Approve</button>
-              <button data-kind="reject" data-id="${pr.id}">Request changes</button>
-            </div>
-            ${reviewList}
-          </article>
-        `;
-      })
-      .join("");
+      const h3 = document.createElement("h3");
+      h3.textContent = pr.title;
+      article.append(h3);
+
+      const desc = document.createElement("p");
+      desc.textContent = pr.description;
+      article.append(desc);
+
+      const statusText = document.createElement("p");
+      const label = document.createElement("strong");
+      label.textContent = "审批状态:";
+      statusText.append(label, ` ${status}`);
+      article.append(statusText);
+
+      const actionRow = document.createElement("div");
+      actionRow.className = "row";
+
+      const select = document.createElement("select");
+      select.dataset.kind = "reviewer";
+      select.dataset.id = pr.id;
+      for (const reviewer of reviewers) {
+        const option = document.createElement("option");
+        option.value = reviewer;
+        option.textContent = reviewer;
+        select.append(option);
+      }
+
+      const approveBtn = document.createElement("button");
+      approveBtn.dataset.kind = "approve";
+      approveBtn.dataset.id = pr.id;
+      approveBtn.textContent = "Approve";
+
+      const rejectBtn = document.createElement("button");
+      rejectBtn.dataset.kind = "reject";
+      rejectBtn.dataset.id = pr.id;
+      rejectBtn.textContent = "Request changes";
+
+      actionRow.append(select, approveBtn, rejectBtn);
+      article.append(actionRow);
+
+      if (pr.reviews.length === 0) {
+        const none = document.createElement("p");
+        none.textContent = "暂无审批";
+        article.append(none);
+      } else {
+        const ul = document.createElement("ul");
+        for (const review of pr.reviews) {
+          const li = document.createElement("li");
+          const code = document.createElement("code");
+          code.textContent = review.reviewer;
+          li.append(code, `: ${review.state} @ ${new Date(review.at).toLocaleString()}`);
+          ul.append(li);
+        }
+        article.append(ul);
+      }
+
+      prList.append(article);
+    }
   }
 
   snapshot.textContent = JSON.stringify(state, null, 2);
